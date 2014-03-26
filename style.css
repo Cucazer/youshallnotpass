@@ -1,10 +1,23 @@
+@font-face {
+	font-family: LoR_font;
+	src: url('fonts/anirm.ttf');
+}
+
+body{
+	font-family:LoR_font;
+	text-align:center;
+	margin:0px;
+	padding:0px;
+}
+
+h1{
+	margin:0px;
+	margin-bottom:10px;
+}
+
 canvas {
    border:1px black dotted;
    margin-right: auto;
    margin-left: auto;
    display: block;
-}
-
-h1 {
-   text-align:center;
 }

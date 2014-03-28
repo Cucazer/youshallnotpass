@@ -11,12 +11,12 @@ var wall = function(x){
 	
 	this.renew = function(){
 		this.x += 1250;
-		this.upperBorder = Math.floor(Math.random()*450) + 25;
+		this.upperBorder = Math.floor(Math.random()*375) + 25;
 		this.lowerBorder = this.upperBorder + this.gapWidth;
 		this.lowerHeight = 500 - this.lowerBorder;
 		step = step * 1.5;
 		myStep = myStep * 1.5;
-	};
+		};
 	
 	this.move = function(){
 		this.x -= step;
@@ -97,7 +97,7 @@ var id = setInterval(function(){
 	drawObjects(context);
 	for (i=0;i<=5;i++){
 		if (collision(objects[0],objects[i])) {
-			console.log("OOPS! -",i);
+			//console.log("OOPS! -",i);
 			clearInterval(id);
 			context.fillStyle = "#FF0000";
 			context.font = "30px Comic Sans MS";

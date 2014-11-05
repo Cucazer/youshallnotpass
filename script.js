@@ -8,7 +8,7 @@ var wall = function(x){
 	this.upperBorder = Math.floor(Math.random()*375) + 25;
 	this.lowerBorder = this.upperBorder + this.gapWidth;
 	this.lowerHeight = 500 - this.lowerBorder;
-	
+
 	this.renew = function(){
 		this.x += 1250;
 		this.upperBorder = Math.floor(Math.random()*375) + 25;
@@ -17,7 +17,7 @@ var wall = function(x){
 		step = step * 1.5;
 		myStep = myStep * 1.5;
 		};
-	
+
 	this.move = function(){
 		this.x -= step;
 		if (this.x <= -this.width){
@@ -38,7 +38,7 @@ function collision(me,obj){
 var objects = new Array();
 //Creating main character
 objects[0] = {
-	x : 25, 
+	x : 25,
 	y : 225,
 	height: 50,
 	width: 50,
@@ -57,6 +57,11 @@ function updateScene(){
 	for (i=1;i<=5;i++){
 		objects[i].move();
 	};
+	//i'll leave it here for the first time
+	myStep = 0;
+	if (38 in keysPressed) myStep -= 10;
+	if (40 in keysPressed) myStep += 10;
+	//Crappy...
 	objects[0].move(myStep);
 }
 
@@ -65,28 +70,43 @@ c.fillStyle = "#FFFFFF";
 c.fillRect(0,0,800,500);
 
 c.fillStyle = "#FF0000";
-c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height); 
+c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height);
 
 c.fillStyle = "#000000";
 for (i=1;i<=5;i++){
 	c.fillRect(objects[i].x,0,objects[i].width,objects[i].upperBorder);
-	c.fillRect(objects[i].x,objects[i].lowerBorder,objects[i].width,objects[i].lowerHeight);	
+	c.fillRect(objects[i].x,objects[i].lowerBorder,objects[i].width,objects[i].lowerHeight);
 }
 };
-
+/*
 window.onkeydown = function(event){
 	switch (event.keyCode){
 		case 38 : myStep = -10;
 				break;
 		case 40 : myStep = 10;
 				break;
-		default : myStep = 0;				
+		default : myStep = 0;
 	}
 };
 
 window.onkeyup = function(event){
 	myStep = 0;
 }
+*/
+
+//Overwriting input handling
+
+var keysPressed = {};
+
+addEventListener("keydown", function (e) {
+	keysPressed[e.keyCode] = true;
+}, false);
+
+addEventListener("keyup", function (e) {
+	delete keysPressed[e.keyCode];
+}, false);
+
+
 
 window.onload = function(){
 var canvas = document.getElementById('canvas');

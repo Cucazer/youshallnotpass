@@ -1,10 +1,23 @@
-var step = 2;
-var myStep = 0;
+var canvas,context;
+var stopGame=false;
+
+// A cross-browser requestAnimationFrame
+// See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/
+var requestAnimFrame = (function(){
+		return window.requestAnimationFrame ||
+		window.webkitRequestAnimationFrame ||
+		window.mozRequestAnimationFrame ||
+		window.oRequestAnimationFrame ||
+		window.msRequestAnimationFrame ||
+		function(callback){
+			window.setTimeout(callback, 1000 / 60);
+		};
+	})();
 
 var wall = function(x){
 	this.x = x;
-	this.width = 75;
-	this.gapWidth = 75;
+	this.width = 50;
+	this.gapWidth = 100;
 	this.upperBorder = Math.floor(Math.random()*375) + 25;
 	this.lowerBorder = this.upperBorder + this.gapWidth;
 	this.lowerHeight = 500 - this.lowerBorder;
@@ -14,11 +27,11 @@ var wall = function(x){
 		this.upperBorder = Math.floor(Math.random()*375) + 25;
 		this.lowerBorder = this.upperBorder + this.gapWidth;
 		this.lowerHeight = 500 - this.lowerBorder;
-		step = step * 1.5;
-		myStep = myStep * 1.5;
+		step = step * 1.2;
+		score++;
 		};
 
-	this.move = function(){
+	this.move = function(step){
 		this.x -= step;
 		if (this.x <= -this.width){
 			this.renew();
@@ -36,65 +49,86 @@ function collision(me,obj){
 
 //Array of scene objects
 var objects = new Array();
-//Creating main character
-objects[0] = {
-	x : 25,
-	y : 225,
-	height: 50,
-	width: 50,
-	move : function(step){
-		if (this.y+step<=500 && this.y+step>=0){
-			this.y += step;
-		};
-	}
-};
-//Creating walls
-for (i=1;i<=5;i++){
-	objects[i] = new wall(i*250);
-};
-
-function updateScene(){
+var step, score;
+function init() {
+	step = 2;
+	score = 0;
+	//Creating main character
+	objects[0] = {
+		x : 25,
+		y : 225,
+		height: 50,
+		width: 50,
+		move : function(step){
+			if (this.y+step<=450 && this.y+step>=0){
+				this.y += step;
+			};
+		}
+	};
+	//Creating walls
 	for (i=1;i<=5;i++){
-		objects[i].move();
+		objects[i] = new wall(i*250);
+	};
+}
+
+function updateScene(dt){
+	for (i=1;i<=5;i++){
+		objects[i].move(step);
 	};
 	//i'll leave it here for the first time
 	myStep = 0;
-	if (38 in keysPressed) myStep -= 10;
-	if (40 in keysPressed) myStep += 10;
+	if (38 in keysPressed) myStep -= 150;
+	if (40 in keysPressed) myStep += 150;
 	//Crappy...
-	objects[0].move(myStep);
+	objects[0].move(step*0.9*myStep*dt);
 }
 
 function drawObjects(c){
-c.fillStyle = "#FFFFFF";
-c.fillRect(0,0,800,500);
+	//Clean canvas
+	c.fillStyle = "#FFFFFF";
+	c.fillRect(0,0,800,500);
 
-c.fillStyle = "#FF0000";
-c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height);
+	//Main character
+	c.fillStyle = "#FF0000";
+	c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height);
 
-c.fillStyle = "#000000";
-for (i=1;i<=5;i++){
-	c.fillRect(objects[i].x,0,objects[i].width,objects[i].upperBorder);
-	c.fillRect(objects[i].x,objects[i].lowerBorder,objects[i].width,objects[i].lowerHeight);
-}
-};
-/*
-window.onkeydown = function(event){
-	switch (event.keyCode){
-		case 38 : myStep = -10;
-				break;
-		case 40 : myStep = 10;
-				break;
-		default : myStep = 0;
+	//Walls
+	c.fillStyle = "#000000";
+	for (i=1;i<=5;i++){
+		c.fillRect(objects[i].x,0,objects[i].width,objects[i].upperBorder);
+		c.fillRect(objects[i].x,objects[i].lowerBorder,objects[i].width,objects[i].lowerHeight);
 	}
+
+	//Score
+	c.fillStyle = "#0000FF";
+	c.font = "25px Comic Sans MS";
+	var scoreText = "Score: "+score.toString();
+	c.fillText(scoreText,680,25);
 };
 
-window.onkeyup = function(event){
-	myStep = 0;
-}
-*/
+var lastTime;
+function mainLoop(){
+	if (stopGame) return true;
 
-//Overwriting input handling
+	var now = Date.now();
+    var dt = (now - lastTime) / 1000.0;
+
+	updateScene(dt);
+	drawObjects(context);
+	for (i=0;i<=5;i++){
+		if (collision(objects[0],objects[i])) {
+			context.fillStyle = "#FF0000";
+			context.font = "30px Comic Sans MS";
+			context.fillText("Game Over!",350,250);
+			return true;
+		}
+	}
+
+	lastTime=now;
+	requestAnimFrame(mainLoop);
+}
+
+//Input handling
 
 var keysPressed = {};
 
@@ -106,25 +140,16 @@ addEventListener("keyup", function (e) {
 	delete keysPressed[e.keyCode];
 }, false);
 
-
-
 window.onload = function(){
-var canvas = document.getElementById('canvas');
-var context = canvas.getContext("2d");
-//drawObjects(context);
-var id = setInterval(function(){
-	updateScene();
-	drawObjects(context);
-	for (i=0;i<=5;i++){
-		if (collision(objects[0],objects[i])) {
-			//console.log("OOPS! -",i);
-			clearInterval(id);
-			context.fillStyle = "#FF0000";
-			context.font = "30px Comic Sans MS";
-			context.fillText("Game Over!",350,250);
-		}
-	}
-}
-,20);
-document.getElementById("stop").onclick = function(){clearInterval(id)};
+canvas = document.getElementById('canvas');
+context = canvas.getContext("2d");
+document.getElementById("stop").onclick = function(){stopGame = true};
+document.getElementById("again").onclick = function(){
+	stopGame = true;
+	init();
+	stopGame = false;
+	mainLoop()
+};
+init();
+mainLoop();
 }

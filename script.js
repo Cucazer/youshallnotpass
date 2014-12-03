@@ -22,6 +22,7 @@ circle.y = 100;
 stage.addChild(circle);
 */
 var wall = function(x){
+	this.x = x;
 	this.width = 50;
 	this.gapWidth = 100;
 	this.upperBorder = Math.floor(Math.random()*375) + 25;
@@ -41,6 +42,7 @@ var wall = function(x){
 	stage.addChild(this.shapeLower);
 
 	this.renew = function(){
+		this.x += 1250;
 		this.shapeUpper.x += 1250;
 		this.shapeLower.x += 1250;
 		this.upperBorder = Math.floor(Math.random()*375) + 25;
@@ -53,6 +55,7 @@ var wall = function(x){
 		};
 
 	this.move = function(step){
+		this.x -= step;
 		this.shapeUpper.x -= step;
 		this.shapeLower.x -= step;
 		if (this.shapeUpper.x <= -this.width){
@@ -84,25 +87,25 @@ function init() {
 	step = 2;
 	score = 0;
 	//Creating main character
-	objects[0] = {
-		width : 50,
-		height : 50
-	};
-	objects[0].shape = new createjs.Shape();
-	objects[0].shape.x = 25;
-	objects[0].shape.y = 225;
+	objects[0] = new createjs.Shape();
+	objects[0].width = 50,
+	objects[0].height = 50
+	objects[0].x = 25;
+	objects[0].y = 225;
 	objects[0].move = function(step){
-			if (this.shape.y+step<=450 && this.shape.y+step>=0){
-				this.shape.y += step;
+			if (this.y+step<=450 && this.y+step>=0){
+				this.y += step;
 			};
 		}
-	objects[0].shape.graphics.beginFill("red").drawRect(0,0,50,50);
-	stage.addChild(objects[0].shape);
+	objects[0].graphics.beginFill("red").drawRect(0,0,50,50);
+	stage.addChild(objects[0]);
 
 	//Creating walls
 	for (i=1;i<=5;i++){
 		objects[i] = new wall(i*250);
 	};
+	createjs.Ticker.addEventListener("tick",mainLoop);
+	createjs.Ticker.setFPS(60);
 }
 
 function updateScene(dt){
@@ -118,10 +121,6 @@ function updateScene(dt){
 }
 
 function drawObjects(c){
-	//Clean canvas
-	c.fillStyle = "#FFFFFF";
-	c.fillRect(0,0,800,500);
-
 	//Main character
 	/*c.fillStyle = "#FF0000";
 	c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height);
@@ -151,15 +150,8 @@ function mainLoop(){
 
 	updateScene(dt);
 	drawObjects(context);
-/*
-	var circle = new createjs.Shape();
-	circle.graphics.beginFill("red").drawCircle(0, 0, 50);
-	circle.x = 100;
-	circle.y = 100;
-	stage.addChild(circle);*/
-//	stage.update();
 
-	for (i=0;i<=5;i++){
+	for (i=1;i<=5;i++){
 		if (collision(objects[0],objects[i])) {
 			context.fillStyle = "#FF0000";
 			context.font = "30px Comic Sans MS";
@@ -169,7 +161,7 @@ function mainLoop(){
 	}
 
 	lastTime=now;
-	requestAnimFrame(mainLoop);
+	//requestAnimFrame(mainLoop);
 }
 
 //Input handling

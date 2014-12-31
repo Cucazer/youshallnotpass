@@ -15,12 +15,13 @@ var requestAnimFrame = (function(){
 	})();
 
 var wall = function(x){
-	this.x = x;
 	this.width = 50;
 	this.gapWidth = 100;
 	this.upperBorder = Math.floor(Math.random()*375) + 25;
 	this.lowerBorder = this.upperBorder + this.gapWidth;
 	this.lowerHeight = 500 - this.lowerBorder;
+	this.upperShape = jc.rect(x,0,this.width,this.upperBorder,true);
+	this.lowerShape = jc.rect(x,this.lowerBorder,this.width,this.lowerHeight,true);
 
 	this.renew = function(){
 		this.x += 1250;
@@ -54,16 +55,11 @@ function init() {
 	step = 2;
 	score = 0;
 	//Creating main character
-	objects[0] = {
-		x : 25,
-		y : 225,
-		height: 50,
-		width: 50,
-		move : function(step){
-			if (this.y+step<=450 && this.y+step>=0){
-				this.y += step;
-			};
-		}
+	objects[0] = jc.rect(25,225,50,50,'#dc0a0a',true);
+	objects[0].move = function(step){
+		if (this._y+step<=450 && this._y+step>=0){
+			this._y += step;
+		};
 	};
 	//Creating walls
 	for (i=1;i<=5;i++){
@@ -85,6 +81,7 @@ function updateScene(dt){
 
 function drawObjects(c){
 	//Clean canvas
+	/*
 	c.fillStyle = "#FFFFFF";
 	c.fillRect(0,0,800,500);
 
@@ -98,12 +95,13 @@ function drawObjects(c){
 		c.fillRect(objects[i].x,0,objects[i].width,objects[i].upperBorder);
 		c.fillRect(objects[i].x,objects[i].lowerBorder,objects[i].width,objects[i].lowerHeight);
 	}
-
+*/
 	//Score
 	c.fillStyle = "#0000FF";
 	c.font = "25px Comic Sans MS";
 	var scoreText = "Score: "+score.toString();
 	c.fillText(scoreText,680,25);
+	jc.start('canvas');
 };
 
 var lastTime;
@@ -113,9 +111,15 @@ function mainLoop(){
 	var now = Date.now();
     var dt = (now - lastTime) / 1000.0;
 
-	updateScene(dt);
-	drawObjects(context);
-	for (i=0;i<=5;i++){
+	//updateScene(dt);
+	//drawObjects(context);
+	setTimeout(function () {
+	for(i=1;i<=5;i++){
+		objects[i].lowerShape.animate({x:objects[i].lowerShape._x-1250},4000);
+		objects[i].upperShape.animate({x:objects[i].upperShape._x-1250},4000);
+	}
+},500);
+	for (i=1;i<=5;i++){
 		if (collision(objects[0],objects[i])) {
 			context.fillStyle = "#FF0000";
 			context.font = "30px Comic Sans MS";
@@ -125,7 +129,7 @@ function mainLoop(){
 	}
 
 	lastTime=now;
-	requestAnimFrame(mainLoop);
+	//requestAnimFrame(mainLoop);
 }
 
 //Input handling
@@ -143,6 +147,8 @@ addEventListener("keyup", function (e) {
 window.onload = function(){
 canvas = document.getElementById('canvas');
 context = canvas.getContext("2d");
+//JcanvaScript with animation
+jc.start('canvas',true);
 document.getElementById("stop").onclick = function(){stopGame = true};
 document.getElementById("again").onclick = function(){
 	stopGame = true;

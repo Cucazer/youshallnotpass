@@ -1,5 +1,10 @@
-var canvas,context;
+var canvas;
 var stopGame=false;
+
+//Global parameters
+var	wallWidth = 50;
+var	wallGapWidth = 100;
+var t = 5000;
 
 // A cross-browser requestAnimationFrame
 // See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/
@@ -24,7 +29,8 @@ var wall = function(x){
 	this.lowerShape = jc.rect(x,this.lowerBorder,this.width,this.lowerHeight,true);
 
 	this.renew = function(){
-		this.x += 1250;
+		this.upperShape.x += 1250;
+		this.lowerShape.x += 1250;
 		this.upperBorder = Math.floor(Math.random()*375) + 25;
 		this.lowerBorder = this.upperBorder + this.gapWidth;
 		this.lowerHeight = 500 - this.lowerBorder;
@@ -40,20 +46,14 @@ var wall = function(x){
 	}
 };
 
-function collision(me,obj){
-		if ((me.x<=obj.x+obj.width) && (me.x+me.width>=obj.x) && ((me.y<=obj.upperBorder) || (me.y+me.height>=obj.lowerBorder))){
-			return true;
-		} else{
-		return false;
-	}
-}
-
 //Array of scene objects
 var objects = new Array();
 var step, score;
 function init() {
+	//Initial parameters
 	step = 2;
 	score = 0;
+	
 	//Creating main character
 	objects[0] = jc.rect(25,225,50,50,'#dc0a0a',true);
 	objects[0].move = function(step){
@@ -61,9 +61,19 @@ function init() {
 			this._y += step;
 		};
 	};
+	
 	//Creating walls
 	for (i=1;i<=5;i++){
-		objects[i] = new wall(i*250);
+		//Wall parameters
+		x=i*250;
+		upperHeight = Math.floor(Math.random()*375) + 25;
+		lowerBorder = upperHeight + wallGapWidth;
+		lowerHeight = canvas.height - lowerBorder;
+		
+		//Creating pair of rects - upper and lower parts of the wall
+		//upper first
+		objects[i*2-1] = jc.rect(x,0,wallWidth,upperHeight,'#000000',true);
+		objects[i*2] = jc.rect(x,lowerBorder,wallWidth,lowerHeight,'#000000',true);
 	};
 }
 
@@ -101,8 +111,53 @@ function drawObjects(c){
 	c.font = "25px Comic Sans MS";
 	var scoreText = "Score: "+score.toString();
 	c.fillText(scoreText,680,25);
-	jc.start('canvas');
 };
+
+function checkCanvasOut(obj)
+{
+	if (obj.position().x<=-wallWidth)
+	{
+		var newx = obj.position().x + 1250;
+		obj.animate({x:newx});
+		return true; //need to increase animation speed
+	}
+	return false
+}
+
+function collision(me,obj){
+	
+	var x1 = me.getRect().x;
+	var x2 = x1 + me.getRect().width;
+	var y1 = me.getRect().y;
+	var y2 = y1 + me.getRect().height;
+	return obj.isPointIn(x1,y1) || obj.isPointIn(x1,y2) 
+		|| obj.isPointIn(x2,y1) || obj.isPointIn(x2,y2);
+}
+
+function checkCollisions()
+{
+	var isCollision=false
+	for(i=1;i<=10;i++) isCollision = isCollision || collision(objects[0],objects[i]);
+	return isCollision;
+}
+
+function checkEverything()
+{
+	var increaseSpeed = false;
+	for (i=1;i<=10;i++) increaseSpeed = increaseSpeed || checkCanvasOut(objects[i]);
+	if (increaseSpeed) {
+		t *= 0.97;
+		for (i=1;i<=10;i++) {
+			objects[i].stop();
+			objects[i].animate({x:objects[i].position().x-500},t);
+			}
+		}
+	if(checkCollisions()) {
+		for (i=0;i<=10;i++) {
+			objects[i].stop();
+		}
+	}
+}
 
 var lastTime;
 function mainLoop(){
@@ -113,12 +168,11 @@ function mainLoop(){
 
 	//updateScene(dt);
 	//drawObjects(context);
-	setTimeout(function () {
-	for(i=1;i<=5;i++){
-		objects[i].lowerShape.animate({x:objects[i].lowerShape._x-1250},4000);
-		objects[i].upperShape.animate({x:objects[i].upperShape._x-1250},4000);
-	}
-},500);
+
+	for(i=1;i<=10;i++) objects[i].animate({x:objects[i].position().x-500},t);
+	
+	setInterval(checkEverything,50);
+/*
 	for (i=1;i<=5;i++){
 		if (collision(objects[0],objects[i])) {
 			context.fillStyle = "#FF0000";
@@ -127,9 +181,13 @@ function mainLoop(){
 			return true;
 		}
 	}
-
+*/
 	lastTime=now;
-	//requestAnimFrame(mainLoop);
+}
+
+function main()
+{
+	setTimeout(mainLoop,2000);
 }
 
 //Input handling
@@ -157,5 +215,5 @@ document.getElementById("again").onclick = function(){
 	mainLoop()
 };
 init();
-mainLoop();
+main();
 }

@@ -107,7 +107,7 @@ function mainLoop(){
 
 function main()
 {
-	setTimeout(mainLoop,20000);
+	setTimeout(mainLoop,5000);
 }
 
 //Input handling
@@ -137,12 +137,20 @@ function moveCharacter()
 		}
 }
 
+var lastEvent;
+
 addEventListener("keydown", function (e) {
-	keysPressed[e.keyCode] = true;
+    if (lastEvent && lastEvent.keyCode == e.keyCode) {
+    	return;
+    }
+    lastEvent = e;
+    keysPressed[e.keyCode] = true;
 	moveCharacter();
+	//console.log("down");
 }, false);
 
 addEventListener("keyup", function (e) {
+    lastEvent = null;
 	delete keysPressed[e.keyCode];
 	moveCharacter();
 }, false);

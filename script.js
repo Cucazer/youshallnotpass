@@ -2,6 +2,7 @@
 var canvas,context,stage;
 var objects; //Array of scene objects
 var stopGame=false;
+var scoreText;
 
 var wall = function(x){
 	this.x = x;
@@ -11,29 +12,31 @@ var wall = function(x){
 	this.lowerBorder = this.upperBorder + this.gapWidth;
 	this.lowerHeight = 500 - this.lowerBorder;
 
-	//CreateJS visualisation
-	this.shapeUpper = new createjs.Shape();
-	this.shapeUpper.x = x;
-	this.shapeUpper.y = 0;
-	this.shapeUpper.graphics.beginFill("black").drawRect(0,0,this.width,this.upperBorder);
-	stage.addChild(this.shapeUpper);
-	this.shapeLower = new createjs.Shape();
-	this.shapeLower.x = x;
-	this.shapeLower.y = this.lowerBorder;
-	this.shapeLower.graphics.beginFill("black").drawRect(0,0,this.width,this.lowerHeight);
-	stage.addChild(this.shapeLower);
+	this.addShapes = function(x){
+		//CreateJS visualisation
+		this.shapeUpper = new createjs.Shape();
+		this.shapeUpper.x = x;
+		this.shapeUpper.y = 0;
+		this.shapeUpper.graphics.beginFill("black").drawRect(0,0,this.width,this.upperBorder);
+		stage.addChild(this.shapeUpper);
+		this.shapeLower = new createjs.Shape();
+		this.shapeLower.x = x;
+		this.shapeLower.y = this.lowerBorder;
+		this.shapeLower.graphics.beginFill("black").drawRect(0,0,this.width,this.lowerHeight);
+		stage.addChild(this.shapeLower);
+	}
+	this.addShapes(x); //part of initialization
 
 	this.renew = function(){
 		this.x += 1250;
-		this.shapeUpper.x += 1250;
-		this.shapeLower.x += 1250;
+		stage.removeChild(this.shapeLower,this.shapeUpper);
 		this.upperBorder = Math.floor(Math.random()*375) + 25;
 		this.lowerBorder = this.upperBorder + this.gapWidth;
 		this.lowerHeight = 500 - this.lowerBorder;
-		this.shapeUpper.graphics.beginFill("black").drawRect(0,0,this.width,this.upperBorder);
-		this.shapeLower.graphics.beginFill("black").drawRect(0,0,this.width,this.lowerHeight);
-		step = step * 1.2;
+		this.addShapes(this.x);
+		step = step * 1.1;
 		score++;
+		scoreText.text = "Score: "+score.toString();
 		};
 
 	this.move = function(step){
@@ -53,8 +56,6 @@ function collision(me,obj){
 		return false;
 	}
 }
-
-//here to createjs__
 
 var step, score;
 function init() {
@@ -81,6 +82,12 @@ function init() {
 	for (i=1;i<=5;i++){
 		objects[i] = new wall(i*250);
 	};
+	
+	scoreText = new createjs.Text("Score: "+score.toString(),"25px Comic Sans MS","blue");
+	scoreText.x = 680;
+	scoreText.y = 15;
+	stage.addChild(scoreText);
+	
 	createjs.Ticker.addEventListener("tick",mainLoop);
 	createjs.Ticker.setFPS(60);
 }
@@ -97,16 +104,6 @@ function updateScene(dt){
 	objects[0].move(step*0.9*myStep*dt);
 }
 
-function drawObjects(c){
-	stage.update();
-
-	//Score
-	c.fillStyle = "#0000FF";
-	c.font = "25px Comic Sans MS";
-	var scoreText = "Score: "+score.toString();
-	c.fillText(scoreText,680,25);
-};
-
 var lastTime;
 function mainLoop(){
 	if (stopGame) return true;
@@ -115,14 +112,16 @@ function mainLoop(){
     var dt = (now - lastTime) / 1000.0;
 
 	updateScene(dt);
-	drawObjects(context);
+	stage.update();
 
 	for (i=1;i<=5;i++){
 		if (collision(objects[0],objects[i])) {
 			stopGame = true;
-			context.fillStyle = "#FF0000";
-			context.font = "30px Comic Sans MS";
-			context.fillText("Game Over!",350,250);
+			var gameOverText = new createjs.Text("Game Over!", "40px Comic Sans MS", "red");
+			gameOverText.x = 350;
+			gameOverText.y = 250;
+			stage.addChild(gameOverText);
+			stage.update();
 			return true;
 		}
 	}
@@ -143,9 +142,6 @@ addEventListener("keyup", function (e) {
 }, false);
 
 window.onload = function(){
-	canvas = document.getElementById("canvas");
-	context = canvas.getContext("2d");
-	//CreateJS
 	stage = new createjs.Stage("canvas");
 	document.getElementById("stop").onclick = function(){stopGame = true};
 	document.getElementById("again").onclick = function(){

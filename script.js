@@ -37,6 +37,7 @@ var wall = function(x){
 		step = step * 1.1;
 		score++;
 		scoreText.text = "Score: "+score.toString();
+		stage.setChildIndex(scoreText,stage.getNumChildren()-1);
 		};
 
 	this.move = function(step){

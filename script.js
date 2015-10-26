@@ -1,26 +1,8 @@
+//Global declarations
 var canvas,context,stage;
+var objects; //Array of scene objects
 var stopGame=false;
 
-// A cross-browser requestAnimationFrame
-// See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/
-var requestAnimFrame = (function(){
-		return window.requestAnimationFrame ||
-		window.webkitRequestAnimationFrame ||
-		window.mozRequestAnimationFrame ||
-		window.oRequestAnimationFrame ||
-		window.msRequestAnimationFrame ||
-		function(callback){
-			window.setTimeout(callback, 1000 / 60);
-		};
-	})();
-
-/*
-var circle = new createjs.Shape();
-circle.graphics.beginFill("red").drawCircle(0, 0, 50);
-circle.x = 100;
-circle.y = 100;
-stage.addChild(circle);
-*/
 var wall = function(x){
 	this.x = x;
 	this.width = 50;
@@ -58,7 +40,7 @@ var wall = function(x){
 		this.x -= step;
 		this.shapeUpper.x -= step;
 		this.shapeLower.x -= step;
-		if (this.shapeUpper.x <= -this.width){
+		if (this.x <= -this.width){
 			this.renew();
 		};
 	}
@@ -72,20 +54,15 @@ function collision(me,obj){
 	}
 }
 
-//Array of scene objects
-var objects = new Array();
-
-
-
-
 //here to createjs__
-
-
 
 var step, score;
 function init() {
 	step = 2;
 	score = 0;
+	stage.removeAllChildren();
+	objects = new Array();
+	
 	//Creating main character
 	objects[0] = new createjs.Shape();
 	objects[0].width = 50,
@@ -121,17 +98,6 @@ function updateScene(dt){
 }
 
 function drawObjects(c){
-	//Main character
-	/*c.fillStyle = "#FF0000";
-	c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height);
-*/
-	//Walls
-	/*
-	c.fillStyle = "#000000";
-	for (i=1;i<=5;i++){
-		c.fillRect(objects[i].x,0,objects[i].width,objects[i].upperBorder);
-		c.fillRect(objects[i].x,objects[i].lowerBorder,objects[i].width,objects[i].lowerHeight);
-	}*/
 	stage.update();
 
 	//Score
@@ -153,6 +119,7 @@ function mainLoop(){
 
 	for (i=1;i<=5;i++){
 		if (collision(objects[0],objects[i])) {
+			stopGame = true;
 			context.fillStyle = "#FF0000";
 			context.font = "30px Comic Sans MS";
 			context.fillText("Game Over!",350,250);
@@ -161,7 +128,6 @@ function mainLoop(){
 	}
 
 	lastTime=now;
-	//requestAnimFrame(mainLoop);
 }
 
 //Input handling
@@ -177,17 +143,17 @@ addEventListener("keyup", function (e) {
 }, false);
 
 window.onload = function(){
-canvas = document.getElementById("canvas");
-context = canvas.getContext("2d");
-//CreateJS
-stage = new createjs.Stage("canvas");
-document.getElementById("stop").onclick = function(){stopGame = true};
-document.getElementById("again").onclick = function(){
-	stopGame = true;
+	canvas = document.getElementById("canvas");
+	context = canvas.getContext("2d");
+	//CreateJS
+	stage = new createjs.Stage("canvas");
+	document.getElementById("stop").onclick = function(){stopGame = true};
+	document.getElementById("again").onclick = function(){
+		stopGame = true;
+		init();
+		stopGame = false;
+		mainLoop()
+	};
 	init();
-	stopGame = false;
-	mainLoop()
-};
-init();
-mainLoop();
+	mainLoop();
 }

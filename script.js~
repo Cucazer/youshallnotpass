@@ -113,17 +113,16 @@ function drawObjects(c){
 	c.fillRect(0,0,800,500);
 
 	//Main character
+	c.fillStyle = "#FFFFFF";
 	if (objects[0].myStep > 0)
 	{
 		//up
-		c.fillStyle = "#FFFFFF";
 	}
 	else
 	{
 		if (objects[0].myStep < 0)
 		{
 			//down
-			c.fillStyle = "#FFFFFF";
 		}
 	}
 	c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height);

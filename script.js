@@ -1,32 +1,30 @@
 var canvas,context;
 var stopGame=false;
+var requestID;
 
-var request = requestFrame('request'); // window.requestAnimationFrame | setTimeout
-var cancel = requestFrame('cancel'); // window.cancelAnimationFrame | cancelTimeout
-
-// A cross-browser requestAnimationFrame
+// A cross-browser requestAnimationFrame and cancelAnimationFrame
 // See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/
-var requestAnimFrame = //(function(){
-		//return window.requestAnimationFrame ||
-		//window.webkitRequestAnimationFrame ||
-		//window.mozRequestAnimationFrame ||
-		//window.oRequestAnimationFrame ||
-		//window.msRequestAnimationFrame ||
+var requestAnimFrame = (function(){
+		return window.requestAnimationFrame ||
+		window.webkitRequestAnimationFrame ||
+		window.mozRequestAnimationFrame ||
+		window.oRequestAnimationFrame ||
+		window.msRequestAnimationFrame ||
 		function(callback){
-			window.setTimeout(callback, 1000 / 60);
+			return window.setTimeout(callback, 1000 / 60);
 		};
-	//})();
+	})();
 	
-var cancelAnimFrame = //(function(){
-		//return window.cancelAnimationFrame ||
-		//window.webkitRequestAnimationFrame ||
-		//window.mozRequestAnimationFrame ||
-		//window.oRequestAnimationFrame ||
-		//window.msRequestAnimationFrame ||
-		function(callback){
-			window.clearTimeout(callback);
+var cancelAnimFrame = (function(){
+		return window.cancelAnimationFrame ||
+		window.webkitRequestAnimationFrame ||
+		window.mozRequestAnimationFrame ||
+		window.oRequestAnimationFrame ||
+		window.msRequestAnimationFrame ||
+		function(){
+			window.clearTimeout(requestID);
 		};
-	//})();
+	})();
 
 var wall = function(x){
 	this.x = x;
@@ -159,7 +157,6 @@ function drawObjects(c){
 };
 
 var lastTime;
-var requestID;
 function mainLoop(){
 	if (stopGame) return true;
 
@@ -168,7 +165,6 @@ function mainLoop(){
 
 	updateScene(dt);
 	drawObjects(context);
-	/*
 	for (i=0;i<=5;i++){
 		if (collision(objects[0],objects[i])) {
 			context.fillStyle = "#FF0000";
@@ -177,7 +173,6 @@ function mainLoop(){
 			return true;
 		}
 	}
-*/
 	lastTime=now;
 	requestID = requestAnimFrame(mainLoop);
 }

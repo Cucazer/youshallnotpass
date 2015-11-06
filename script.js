@@ -1,18 +1,32 @@
 var canvas,context;
 var stopGame=false;
 
+var request = requestFrame('request'); // window.requestAnimationFrame | setTimeout
+var cancel = requestFrame('cancel'); // window.cancelAnimationFrame | cancelTimeout
+
 // A cross-browser requestAnimationFrame
 // See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/
-var requestAnimFrame = (function(){
-		return window.requestAnimationFrame ||
-		window.webkitRequestAnimationFrame ||
-		window.mozRequestAnimationFrame ||
-		window.oRequestAnimationFrame ||
-		window.msRequestAnimationFrame ||
+var requestAnimFrame = //(function(){
+		//return window.requestAnimationFrame ||
+		//window.webkitRequestAnimationFrame ||
+		//window.mozRequestAnimationFrame ||
+		//window.oRequestAnimationFrame ||
+		//window.msRequestAnimationFrame ||
 		function(callback){
-			window.setTimeout(callback, 1000 / 30);
+			window.setTimeout(callback, 1000 / 60);
 		};
-	})();
+	//})();
+	
+var cancelAnimFrame = //(function(){
+		//return window.cancelAnimationFrame ||
+		//window.webkitRequestAnimationFrame ||
+		//window.mozRequestAnimationFrame ||
+		//window.oRequestAnimationFrame ||
+		//window.msRequestAnimationFrame ||
+		function(callback){
+			window.clearTimeout(callback);
+		};
+	//})();
 
 var wall = function(x){
 	this.x = x;
@@ -145,6 +159,7 @@ function drawObjects(c){
 };
 
 var lastTime;
+var requestID;
 function mainLoop(){
 	if (stopGame) return true;
 
@@ -153,6 +168,7 @@ function mainLoop(){
 
 	updateScene(dt);
 	drawObjects(context);
+	/*
 	for (i=0;i<=5;i++){
 		if (collision(objects[0],objects[i])) {
 			context.fillStyle = "#FF0000";
@@ -161,9 +177,9 @@ function mainLoop(){
 			return true;
 		}
 	}
-
+*/
 	lastTime=now;
-	requestAnimFrame(mainLoop);
+	requestID = requestAnimFrame(mainLoop);
 }
 
 //Input handling
@@ -184,6 +200,10 @@ context = canvas.getContext("2d");
 document.getElementById("stop").onclick = function(){stopGame = true};
 document.getElementById("again").onclick = function(){
 	stopGame = true;
+	if (requestID) {
+       cancelAnimFrame(requestID);
+       requestID = undefined;
+    }
 	init();
 	drawObjectsInit(context);
 	stopGame = false;

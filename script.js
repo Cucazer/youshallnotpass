@@ -1,7 +1,8 @@
 var canvas,context;
 var stopGame=false;
+var requestID;
 
-// A cross-browser requestAnimationFrame
+// A cross-browser requestAnimationFrame and cancelAnimationFrame
 // See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/
 var requestAnimFrame = (function(){
 		return window.requestAnimationFrame ||
@@ -10,7 +11,18 @@ var requestAnimFrame = (function(){
 		window.oRequestAnimationFrame ||
 		window.msRequestAnimationFrame ||
 		function(callback){
-			window.setTimeout(callback, 1000 / 60);
+			return window.setTimeout(callback, 1000 / 60);
+		};
+	})();
+	
+var cancelAnimFrame = (function(){
+		return window.cancelAnimationFrame ||
+		window.webkitRequestAnimationFrame ||
+		window.mozRequestAnimationFrame ||
+		window.oRequestAnimationFrame ||
+		window.msRequestAnimationFrame ||
+		function(){
+			window.clearTimeout(requestID);
 		};
 	})();
 
@@ -177,9 +189,8 @@ function mainLoop(){
 			return true;
 		}
 	}
-
 	lastTime=now;
-	requestAnimFrame(mainLoop);
+	requestID = requestAnimFrame(mainLoop);
 }
 
 //Input handling
@@ -200,6 +211,10 @@ context = canvas.getContext("2d");
 document.getElementById("stop").onclick = function(){stopGame = true};
 document.getElementById("again").onclick = function(){
 	stopGame = true;
+	if (requestID) {
+       cancelAnimFrame(requestID);
+       requestID = undefined;
+    }
 	init();
 	drawObjectsInit(context);
 	stopGame = false;

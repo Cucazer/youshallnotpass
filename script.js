@@ -28,6 +28,7 @@ var cancelAnimFrame = (function(){
 
 var wall = function(x){
 	this.x = x;
+	this.dx = 0;
 	this.width = 50;
 	this.gapWidth = 100;
 	this.upperBorder = Math.floor(Math.random()*375) + 25;
@@ -45,6 +46,7 @@ var wall = function(x){
 
 	this.move = function(step){
 		this.x -= step;
+		this.dx = -step;
 		if (this.x <= -this.width){
 			this.renew();
 		};
@@ -68,13 +70,16 @@ function init() {
 	//Creating main character
 	objects[0] = {
 		x : 25,
+		dx : 0,
 		y : 225,
+		dy : 0,
 		height: 50,
 		width: 50,
 		myStep: 0,
 		move : function(step){
 			if (this.y+step<=450 && this.y+step>=0){
 				this.y += step;
+				this.dy = step;
 			};
 		}
 	};
@@ -93,7 +98,7 @@ function updateScene(dt){
 	if (38 in keysPressed) objects[0].myStep -= 150;
 	if (40 in keysPressed) objects[0].myStep += 150;
 	//Crappy...
-	objects[0].move(step*0.9*objects[0].myStep*dt);
+	objects[0].move(Math.round(step*0.9*objects[0].myStep*dt));
 }
 
 function drawObjectsInit(c){
@@ -121,32 +126,43 @@ function drawObjectsInit(c){
 
 function drawObjects(c){
 	//Clean canvas
-	c.fillStyle = "#FFFFFF";
-	c.fillRect(0,0,800,500);
+	//c.fillStyle = "#FFFFFF";
+	//c.fillRect(0,0,800,500);
 
 	//Main character
-	if (objects[0].myStep > 0)
+	if (objects[0].dy > 0)
 	{
-		//up
-		c.fillStyle = "#FFFFFF";
+	    //down
+	    c.fillStyle = "#FFFFFF";
+	    c.fillRect(objects[0].x,objects[0].y-objects[0].dy,objects[0].width,objects[0].dy);
+	    c.fillStyle = "#FF0000";
+	    c.fillRect(objects[0].x,objects[0].y+objects[0].height-objects[0].dy,objects[0].width,objects[0].dy);
 	}
 	else
 	{
-		if (objects[0].myStep < 0)
+		if (objects[0].dy < 0)
 		{
-			//down
+			//up
 			c.fillStyle = "#FFFFFF";
+			c.fillRect(objects[0].x,objects[0].y+objects[0].height-objects[0].dy,objects[0].width,objects[0].dy);
+			c.fillStyle = "#FF0000";
+			c.fillRect(objects[0].x,objects[0].y-objects[0].dy,objects[0].width,objects[0].dy);
 		}
 	}
-	c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height);
+	/*c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height);
 	c.fillStyle = "#FF0000";
-	c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height);
+	c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height);*/
 
 	//Walls
+	c.fillStyle = "#FFFFFF";
+	for (i=1;i<=5;i++){
+		c.fillRect(objects[i].x+objects[0].width-objects[i].dx,0,objects[i].dx,objects[i].upperBorder);
+		c.fillRect(objects[i].x+objects[0].width-objects[i].dx,objects[i].lowerBorder,objects[i].dx,objects[i].lowerHeight);
+	}
 	c.fillStyle = "#000000";
 	for (i=1;i<=5;i++){
-		c.fillRect(objects[i].x,0,objects[i].width,objects[i].upperBorder);
-		c.fillRect(objects[i].x,objects[i].lowerBorder,objects[i].width,objects[i].lowerHeight);
+		c.fillRect(objects[i].x,0,objects[i].dx,objects[i].upperBorder);
+		c.fillRect(objects[i].x,objects[i].lowerBorder,objects[i].dx,objects[i].lowerHeight);
 	}
 
 	//Score

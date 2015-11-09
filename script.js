@@ -28,7 +28,7 @@ var cancelAnimFrame = (function(){
 
 var wall = function(x){
 	this.x = x;
-	this.dx = 0;
+	this.lastx = x;
 	this.width = 50;
 	this.gapWidth = 100;
 	this.upperBorder = Math.floor(Math.random()*375) + 25;
@@ -36,7 +36,10 @@ var wall = function(x){
 	this.lowerHeight = 500 - this.lowerBorder;
 
 	this.renew = function(){
+		context.fillStyle = "white";
+		context.fillRect(0,0,Math.round(this.lastx + this.width),500);
 		this.x += 1250;
+		this.lastx = this.x;
 		this.upperBorder = Math.floor(Math.random()*375) + 25;
 		this.lowerBorder = this.upperBorder + this.gapWidth;
 		this.lowerHeight = 500 - this.lowerBorder;
@@ -45,8 +48,8 @@ var wall = function(x){
 		};
 
 	this.move = function(step){
+		this.lastx = this.x;
 		this.x -= step;
-		this.dx = -step;
 		if (this.x <= -this.width){
 			this.renew();
 		};
@@ -154,15 +157,39 @@ function drawObjects(c){
 	c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height);*/
 
 	//Walls
-	c.fillStyle = "#FFFFFF";
+	c.fillStyle = "white";
 	for (i=1;i<=5;i++){
-		c.fillRect(objects[i].x+objects[0].width-objects[i].dx,0,objects[i].dx,objects[i].upperBorder);
-		c.fillRect(objects[i].x+objects[0].width-objects[i].dx,objects[i].lowerBorder,objects[i].dx,objects[i].lowerHeight);
+		c.beginPath();
+		c.moveTo(Math.round(objects[i].x + objects[i].width),0);
+		c.lineTo(Math.round(objects[i].x + objects[i].width),objects[i].upperBorder);
+		c.lineTo(Math.round(objects[i].lastx + objects[i].width),objects[i].upperBorder);
+		c.lineTo(Math.round(objects[i].lastx + objects[i].width),0);
+		c.fill();
+		c.beginPath();
+		c.moveTo(Math.round(objects[i].x + objects[i].width),objects[i].lowerBorder);
+		c.lineTo(Math.round(objects[i].x + objects[i].width),500);
+		c.lineTo(Math.round(objects[i].lastx + objects[i].width),500);
+		c.lineTo(Math.round(objects[i].lastx + objects[i].width),objects[i].lowerBorder);
+		c.fill();
+		//c.fillRect(Math.round(objects[i].x+objects[0].width),0,Math.round(objects[i].lastx-objects[i].x),objects[i].upperBorder);
+		//c.fillRect(Math.round(objects[i].x+objects[0].width),objects[i].lowerBorder,Math.round(objects[i].lastx-objects[i].x),objects[i].lowerHeight);
 	}
-	c.fillStyle = "#000000";
+	c.fillStyle = "black";
 	for (i=1;i<=5;i++){
-		c.fillRect(objects[i].x,0,objects[i].dx,objects[i].upperBorder);
-		c.fillRect(objects[i].x,objects[i].lowerBorder,objects[i].dx,objects[i].lowerHeight);
+		c.beginPath();
+		c.moveTo(Math.round(objects[i].x),0);
+		c.lineTo(Math.round(objects[i].x),objects[i].upperBorder);
+		c.lineTo(Math.round(objects[i].lastx),objects[i].upperBorder);
+		c.lineTo(Math.round(objects[i].lastx),0);
+		c.fill();
+		c.beginPath();
+		c.moveTo(Math.round(objects[i].x),objects[i].lowerBorder);
+		c.lineTo(Math.round(objects[i].x),500);
+		c.lineTo(Math.round(objects[i].lastx),500);
+		c.lineTo(Math.round(objects[i].lastx),objects[i].lowerBorder);
+		c.fill();
+		//c.fillRect(objects[i].x,0,Math.round(objects[i].lastx-objects[i].x),objects[i].upperBorder);
+		//c.fillRect(objects[i].x,objects[i].lowerBorder,Math.round(objects[i].lastx-objects[i].x),objects[i].lowerHeight);
 	}
 
 	//Score

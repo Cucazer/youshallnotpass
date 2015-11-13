@@ -104,20 +104,40 @@ function updateScene(dt){
 	objects[0].move(Math.round(step*0.9*objects[0].myStep*dt));
 }
 
+/**
+ * Draws rectangle on ctx by given coordinates of opposite vertices
+ **/   
+function drawRectXY(ctx,x1,y1,x2,y2)
+{
+	ctx.beginPath();
+	ctx.moveTo(Math.round(x1),Math.round(y1));
+	ctx.lineTo(Math.round(x1),Math.round(y2));
+	ctx.lineTo(Math.round(x2),Math.round(y2));
+	ctx.lineTo(Math.round(x2),Math.round(y1));
+	ctx.closePath();
+}
+
+/**
+ * Draws rectangle on ctx by given coordinates of opposite vertices and fills it with color
+ **/   
+function drawRectXYFill(ctx,x1,y1,x2,y2,color)
+{
+	ctx.fillStyle = color;
+	drawRectXY(ctx,x1,y1,x2,y2);
+	ctx.fill();
+}
+
 function drawObjectsInit(c){
-	//Clean canvas
-	c.fillStyle = "#FFFFFF";
-	c.fillRect(0,0,800,500);
+	//Clear canvas
+	c.clearRect(0,0,800,500);
 
 	//Main character
-	c.fillStyle = "#FF0000";
-	c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height);
+	drawRectXYFill(c,objects[0].x,objects[0].y,objects[0].x + objects[0].width,objects[0].y + objects[0].height,"red");
 
 	//Walls
-	c.fillStyle = "#000000";
 	for (i=1;i<=5;i++){
-		c.fillRect(objects[i].x,0,objects[i].width,objects[i].upperBorder);
-		c.fillRect(objects[i].x,objects[i].lowerBorder,objects[i].width,objects[i].lowerHeight);
+		drawRectXYFill(c,objects[i].x,0,objects[i].x + objects[i].width,objects[i].upperBorder,"black");
+		drawRectXYFill(c,objects[i].x,objects[i].lowerBorder,objects[i].x + objects[i].width,500,"black");
 	}
 
 	//Score
@@ -128,68 +148,29 @@ function drawObjectsInit(c){
 };
 
 function drawObjects(c){
-	//Clean canvas
-	//c.fillStyle = "#FFFFFF";
-	//c.fillRect(0,0,800,500);
-
-	//Main character
+	//Walls redrawing
+	for (i=1;i<=5;i++){
+		drawRectXYFill(c,objects[i].x + objects[i].width,0,objects[i].lastx + objects[i].width,objects[i].upperBorder,"white");
+		drawRectXYFill(c,objects[i].x,0,objects[i].lastx,objects[i].upperBorder,"black");
+		drawRectXYFill(c,objects[i].x + objects[i].width,objects[i].lowerBorder,objects[i].lastx + objects[i].width,500,"white");
+		drawRectXYFill(c,objects[i].x,objects[i].lowerBorder,objects[i].lastx,500,"black");
+	}
+	
+	//Main character to be drawn ontop
 	if (objects[0].dy > 0)
 	{
 	    //down
-	    c.fillStyle = "#FFFFFF";
-	    c.fillRect(objects[0].x,objects[0].y-objects[0].dy,objects[0].width,objects[0].dy);
-	    c.fillStyle = "#FF0000";
-	    c.fillRect(objects[0].x,objects[0].y+objects[0].height-objects[0].dy,objects[0].width,objects[0].dy);
+	    drawRectXYFill(c,objects[0].x,objects[0].y-objects[0].dy,objects[0].x + objects[0].width,objects[0].y,"white");
+	    drawRectXYFill(c,objects[0].x,objects[0].y+objects[0].height-objects[0].dy,objects[0].x + objects[0].width,objects[0].y + objects[0].height,"red");
 	}
 	else
 	{
 		if (objects[0].dy < 0)
 		{
 			//up
-			c.fillStyle = "#FFFFFF";
-			c.fillRect(objects[0].x,objects[0].y+objects[0].height-objects[0].dy,objects[0].width,objects[0].dy);
-			c.fillStyle = "#FF0000";
-			c.fillRect(objects[0].x,objects[0].y-objects[0].dy,objects[0].width,objects[0].dy);
+			drawRectXYFill(c,objects[0].x,objects[0].y+objects[0].height-objects[0].dy,objects[0].x + objects[0].width,objects[0].y + objects[0].height,"white");
+			drawRectXYFill(c,objects[0].x,objects[0].y-objects[0].dy,objects[0].x + objects[0].width,objects[0].y,"red");
 		}
-	}
-	/*c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height);
-	c.fillStyle = "#FF0000";
-	c.fillRect(objects[0].x,objects[0].y,objects[0].width,objects[0].height);*/
-
-	//Walls
-	c.fillStyle = "white";
-	for (i=1;i<=5;i++){
-		c.beginPath();
-		c.moveTo(Math.round(objects[i].x + objects[i].width),0);
-		c.lineTo(Math.round(objects[i].x + objects[i].width),objects[i].upperBorder);
-		c.lineTo(Math.round(objects[i].lastx + objects[i].width),objects[i].upperBorder);
-		c.lineTo(Math.round(objects[i].lastx + objects[i].width),0);
-		c.fill();
-		c.beginPath();
-		c.moveTo(Math.round(objects[i].x + objects[i].width),objects[i].lowerBorder);
-		c.lineTo(Math.round(objects[i].x + objects[i].width),500);
-		c.lineTo(Math.round(objects[i].lastx + objects[i].width),500);
-		c.lineTo(Math.round(objects[i].lastx + objects[i].width),objects[i].lowerBorder);
-		c.fill();
-		//c.fillRect(Math.round(objects[i].x+objects[0].width),0,Math.round(objects[i].lastx-objects[i].x),objects[i].upperBorder);
-		//c.fillRect(Math.round(objects[i].x+objects[0].width),objects[i].lowerBorder,Math.round(objects[i].lastx-objects[i].x),objects[i].lowerHeight);
-	}
-	c.fillStyle = "black";
-	for (i=1;i<=5;i++){
-		c.beginPath();
-		c.moveTo(Math.round(objects[i].x),0);
-		c.lineTo(Math.round(objects[i].x),objects[i].upperBorder);
-		c.lineTo(Math.round(objects[i].lastx),objects[i].upperBorder);
-		c.lineTo(Math.round(objects[i].lastx),0);
-		c.fill();
-		c.beginPath();
-		c.moveTo(Math.round(objects[i].x),objects[i].lowerBorder);
-		c.lineTo(Math.round(objects[i].x),500);
-		c.lineTo(Math.round(objects[i].lastx),500);
-		c.lineTo(Math.round(objects[i].lastx),objects[i].lowerBorder);
-		c.fill();
-		//c.fillRect(objects[i].x,0,Math.round(objects[i].lastx-objects[i].x),objects[i].upperBorder);
-		//c.fillRect(objects[i].x,objects[i].lowerBorder,Math.round(objects[i].lastx-objects[i].x),objects[i].lowerHeight);
 	}
 
 	//Score

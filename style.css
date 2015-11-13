@@ -15,9 +15,16 @@ h1{
 	margin-bottom:10px;
 }
 
+div.wrapper {
+    position: relative;
+    width: 800px;
+    height: 500px;
+    margin: auto;
+}
+
 canvas {
-   border:1px black dotted;
-   margin-right: auto;
-   margin-left: auto;
-   display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	border:1px black dotted;
 }

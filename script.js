@@ -1,4 +1,5 @@
 var canvas,context;
+var scoreCanvas,scoreContext;
 var stopGame=false;
 var requestID;
 
@@ -45,6 +46,9 @@ var wall = function(x){
 		this.lowerHeight = 500 - this.lowerBorder;
 		step = step * 1.2;
 		score++;
+		scoreContext.clearRect(680,0,120,100);
+		var scoreText = "Score: "+score.toString();
+		scoreContext.fillText(scoreText,680,25);
 		};
 
 	this.move = function(step){
@@ -130,6 +134,7 @@ function drawRectXYFill(ctx,x1,y1,x2,y2,color)
 function drawObjectsInit(c){
 	//Clear canvas
 	c.clearRect(0,0,800,500);
+	scoreContext.clearRect(0,0,800,500);
 
 	//Main character
 	drawRectXYFill(c,objects[0].x,objects[0].y,objects[0].x + objects[0].width,objects[0].y + objects[0].height,"red");
@@ -141,13 +146,13 @@ function drawObjectsInit(c){
 	}
 
 	//Score
-	c.fillStyle = "#0000FF";
-	c.font = "25px Comic Sans MS";
+	scoreContext.fillStyle = "blue";
+	scoreContext.font = "25px Comic Sans MS";
 	var scoreText = "Score: "+score.toString();
-	c.fillText(scoreText,680,25);
+	scoreContext.fillText(scoreText,680,25);
 };
 
-function drawObjects(c){
+function drawObjects(c){	
 	//Walls redrawing
 	for (i=1;i<=5;i++){
 		drawRectXYFill(c,objects[i].x + objects[i].width,0,objects[i].lastx + objects[i].width,objects[i].upperBorder,"white");
@@ -172,12 +177,6 @@ function drawObjects(c){
 			drawRectXYFill(c,objects[0].x,objects[0].y-objects[0].dy,objects[0].x + objects[0].width,objects[0].y,"red");
 		}
 	}
-
-	//Score
-	c.fillStyle = "#0000FF";
-	c.font = "25px Comic Sans MS";
-	var scoreText = "Score: "+score.toString();
-	c.fillText(scoreText,680,25);
 };
 
 var lastTime;
@@ -216,6 +215,8 @@ addEventListener("keyup", function (e) {
 window.onload = function(){
 canvas = document.getElementById('canvas');
 context = canvas.getContext("2d");
+scoreCanvas = document.getElementById('ScoreCanvas');
+scoreContext = scoreCanvas.getContext("2d")
 document.getElementById("stop").onclick = function(){stopGame = true};
 document.getElementById("again").onclick = function(){
 	stopGame = true;

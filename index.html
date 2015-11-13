@@ -9,7 +9,10 @@
 <body>
 
 <h1>You shall not pass!</h1>
-<canvas height=500 width=800 id="canvas">Sorry, but your browser doesn't support canvas or JavaScript is disabled!</canvas>
+<div class="wrapper">
+	<canvas height=500 width=800 id="canvas" z=0>Sorry, but your browser doesn't support canvas or JavaScript is disabled!</canvas>
+	<canvas height=500 width=800 id="ScoreCanvas" z=1></canvas>
+</div>
 <button id="again">Play again</button>
 <button id="stop">Stop</button>
 

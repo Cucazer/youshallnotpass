@@ -46,9 +46,9 @@ var wall = function(x){
 		this.lowerHeight = 500 - this.lowerBorder;
 		step = step * 1.2;
 		score++;
-		scoreContext.clearRect(680,0,120,100);
+		scoreContext.clearRect(650,0,150,100);
 		var scoreText = "Score: "+score.toString();
-		scoreContext.fillText(scoreText,680,25);
+		scoreContext.fillText(scoreText,650,25);
 		};
 
 	this.move = function(step){
@@ -149,7 +149,7 @@ function drawObjectsInit(c){
 	scoreContext.fillStyle = "blue";
 	scoreContext.font = "25px Comic Sans MS";
 	var scoreText = "Score: "+score.toString();
-	scoreContext.fillText(scoreText,680,25);
+	scoreContext.fillText(scoreText,650,25);
 };
 
 function drawObjects(c){	
@@ -195,6 +195,12 @@ function mainLoop(){
 			context.fillText("Game Over!",350,250);
 			return true;
 		}
+	}
+	if (score>2000) {
+		context.fillStyle = "#00FF00";
+		context.font = "30px Comic Sans MS";
+		context.fillText("Congrats, you've passed it",350,250);
+		return true;
 	}
 	lastTime=now;
 	requestID = requestAnimFrame(mainLoop);

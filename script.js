@@ -2,6 +2,7 @@ var canvas,context;
 var scoreCanvas,scoreContext;
 var stopGame=false;
 var requestID;
+const flag = "꿨Ộq꿤ệ{꿼ệ.꿐ỰZ꾶ịA꿾ẟK꿘ở*꿴Ờc"
 
 // A cross-browser requestAnimationFrame and cancelAnimationFrame
 // See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/
@@ -80,6 +81,7 @@ var step, score;
 function init() {
 	step = 2;
 	score = 0;
+	consumedScore = 0;
 	//Creating main character
 	objects[0] = {
 		x : 25,
@@ -188,10 +190,10 @@ function drawObjects(c){
 var lastTime;
 function mainLoop(){
 	if (stopGame) return true;
-
+	
 	var now = Date.now();
     var dt = (now - lastTime) / 1000.0;
-
+	
 	updateScene(dt);
 	drawObjects(context);
 	for (i=0;i<=5;i++){
@@ -205,8 +207,16 @@ function mainLoop(){
 	if (score>2000) {
 		context.fillStyle = "#00FF00";
 		context.font = "30px Comic Sans MS";
-		context.fillText("Congrats, you've passed it", 250, 250);
-		context.fillText("Here's the secret: " + consumedScore, 250, 300);
+		context.fillText("Congrats, you've passed it!", 220, 250);
+		
+		secret = '';
+		for(i=0; i<flag.length / 3; i++) {
+			secret += String.fromCharCode(flag[3*i].charCodeAt(0) ^ consumedScore);
+			secret += String.fromCharCode(flag[3*i + 1].charCodeAt(0) ^ consumedScore >> 8);
+			secret += String.fromCharCode(flag[3*i + 2].charCodeAt(0) ^ consumedScore >> 16);
+		}
+
+		context.fillText("Here's the secret: " + secret, 70, 300);
 		return true;
 	}
 	lastTime=now;

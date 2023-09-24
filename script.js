@@ -27,6 +27,11 @@ var cancelAnimFrame = (function(){
 		};
 	})();
 
+var consumedScore = 0
+var consumeScore = function(score) {
+	consumedScore += score;
+}
+
 var wall = function(x){
 	this.x = x;
 	this.lastx = x;
@@ -46,6 +51,7 @@ var wall = function(x){
 		this.lowerHeight = 500 - this.lowerBorder;
 		step = step * 1.2;
 		score++;
+		consumeScore(score);
 		scoreContext.clearRect(650,0,150,100);
 		var scoreText = "Score: "+score.toString();
 		scoreContext.fillText(scoreText,650,25);
@@ -199,7 +205,8 @@ function mainLoop(){
 	if (score>2000) {
 		context.fillStyle = "#00FF00";
 		context.font = "30px Comic Sans MS";
-		context.fillText("Congrats, you've passed it",350,250);
+		context.fillText("Congrats, you've passed it", 250, 250);
+		context.fillText("Here's the secret: " + consumedScore, 250, 300);
 		return true;
 	}
 	lastTime=now;

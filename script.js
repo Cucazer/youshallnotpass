@@ -1,3 +1,4 @@
+var hello = "Game Over!";
 var canvas,context;
 var scoreCanvas,scoreContext;
 var stopGame=false;
@@ -83,6 +84,12 @@ function init() {
 				this.y += step;
 				this.dy = step;
 			};
+		},
+		hello : function(){
+			context.fillStyle = "#FF0000";
+			context.font = "30px Comic Sans MS";
+			context.fillText(hello,350,250);
+			return true;
 		}
 	};
 	//Creating walls
@@ -185,10 +192,7 @@ function mainLoop(){
 	drawObjects(context);
 	for (i=0;i<=5;i++){
 		if ((objects[0].x<=objects[i].x+objects[i].width) && (objects[0].x+objects[0].width>=objects[i].x) && ((objects[0].y<=objects[i].upperBorder) || (objects[0].y+objects[0].height>=objects[i].lowerBorder))){
-			context.fillStyle = "#FF0000";
-			context.font = "30px Comic Sans MS";
-			context.fillText("Game Over!",350,250);
-			return true;
+			return objects[0].hello();
 		}
 	}
 	if (score>2000) {

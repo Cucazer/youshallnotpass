@@ -2,7 +2,8 @@ var canvas,context;
 var scoreCanvas,scoreContext;
 var stopGame=false;
 var requestID;
-const flag = "꿨Ộq꿤ệ{꿼ệ.꿐ỰZ꾶ịA꿾ẟK꿘ở*꿴Ờc"
+const flag = "꿨Ộq꿤ệ{꿼ệ.꿐ỰZ꾶ịA꿾ẟK꿘ở*꿴Ờc";
+var key;
 
 // A cross-browser requestAnimationFrame and cancelAnimationFrame
 // See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/
@@ -28,11 +29,6 @@ var cancelAnimFrame = (function(){
 		};
 	})();
 
-var consumedScore = 0
-var consumeScore = function(score) {
-	consumedScore += score;
-}
-
 var wall = function(x){
 	this.x = x;
 	this.lastx = x;
@@ -51,8 +47,7 @@ var wall = function(x){
 		this.lowerBorder = this.upperBorder + this.gapWidth;
 		this.lowerHeight = 500 - this.lowerBorder;
 		step = step * 1.2;
-		score++;
-		consumeScore(score);
+		key+=++score;
 		scoreContext.clearRect(650,0,150,100);
 		var scoreText = "Score: "+score.toString();
 		scoreContext.fillText(scoreText,650,25);
@@ -67,21 +62,13 @@ var wall = function(x){
 	}
 };
 
-function collision(me,obj){
-		if ((me.x<=obj.x+obj.width) && (me.x+me.width>=obj.x) && ((me.y<=obj.upperBorder) || (me.y+me.height>=obj.lowerBorder))){
-			return true;
-		} else{
-		return false;
-	}
-}
-
 //Array of scene objects
 var objects = new Array();
 var step, score;
 function init() {
 	step = 2;
 	score = 0;
-	consumedScore = 0;
+	key = 0;
 	//Creating main character
 	objects[0] = {
 		x : 25,
@@ -197,7 +184,7 @@ function mainLoop(){
 	updateScene(dt);
 	drawObjects(context);
 	for (i=0;i<=5;i++){
-		if (collision(objects[0],objects[i])) {
+		if ((objects[0].x<=objects[i].x+objects[i].width) && (objects[0].x+objects[0].width>=objects[i].x) && ((objects[0].y<=objects[i].upperBorder) || (objects[0].y+objects[0].height>=objects[i].lowerBorder))){
 			context.fillStyle = "#FF0000";
 			context.font = "30px Comic Sans MS";
 			context.fillText("Game Over!",350,250);
@@ -211,9 +198,9 @@ function mainLoop(){
 		
 		secret = '';
 		for(i=0; i<flag.length / 3; i++) {
-			secret += String.fromCharCode(flag[3*i].charCodeAt(0) ^ consumedScore);
-			secret += String.fromCharCode(flag[3*i + 1].charCodeAt(0) ^ consumedScore >> 8);
-			secret += String.fromCharCode(flag[3*i + 2].charCodeAt(0) ^ consumedScore >> 16);
+			for(j=0; j<3; j++) {
+				secret += String.fromCharCode(flag[3*i+j].charCodeAt(j-j) ^ key >> 8*j);
+			}
 		}
 
 		context.fillText("Here's the secret: " + secret, 70, 300);
